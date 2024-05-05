@@ -1,19 +1,28 @@
 import { EventEmitter, IEvents } from './components/base/events';
-import { CardData } from './components/AppData';
+import { AppState, CardData, CatalogChangeEvent } from './components/AppData';
 import './scss/styles.scss';
 import { LarekAPI } from './components/LarekApi';
 import { API_URL, CDN_URL } from './utils/constants';
+import { Page } from './components/Page';
+import { Card, CatalogCard } from './components/Card';
+import { cloneTemplate, ensureElement } from './utils/utils';
 
 const events = new EventEmitter();
 
 const api = new LarekAPI(CDN_URL, API_URL);
 
+const appData = new AppState({}, events);
+
+const page = new Page(document.body, events)
+
 events.onAll(({ eventName, data }) => {
     console.log(eventName, data);
 })
 
-const testCards = new CardData(events);
+// Шаблоны
+const cardCatalogTemplate = ensureElement<HTMLTemplateElement>('#card-catalog');
 
+// отладка
 const testCardsObj = {
     "total": 10,
     "items": [
@@ -101,11 +110,48 @@ const testCardsObj = {
 };
 const testCardsArray = testCardsObj.items;
 
-testCards.cards = testCardsArray;
-testCards.preview = 'b06cde61-912f-4663-9751-09956c0eed67';
+//Presenter
+// TODO: исправить данные category и price
+events.on<CatalogChangeEvent>('items:changed', () => {
+    page.catalog = appData.catalog.map(item => {
+        const card = new CatalogCard(cloneTemplate(cardCatalogTemplate), {
+            onClick: () => events.emit('card:select', item)
+        });
+        return card.render({
+            title: item.title,
+            image: item.image,
+            description: item.description,
+            category: item.category,
+            price: item.price,
+        });
+    });
 
-api.getProductList().then(items => {
-    testCards.cards = items;
-    console.log(testCards.cards);
+    page.counter = appData.order.items.length;
 });
 
+api.getProductList()
+    .then(appData.setCatalog.bind(appData))
+    .catch(err => {
+        console.error(err);
+    });
+
+// api.getProductList()
+//     .then(data => {
+//         console.log(data);
+//         appData.setCatalog(data);
+//         console.log(appData.getCards());
+//         console.log(appData.isInBasket('c101ab44-ed99-4a54-990d-47aa2bb4e7d9'));
+//         appData.addToBasket('c101ab44-ed99-4a54-990d-47aa2bb4e7d9');
+//         appData.addToBasket('412bcf81-7e75-4e70-bdb9-d3c73c9803b7');
+//         appData.addToBasket('b06cde61-912f-4663-9751-09956c0eed67');
+//         console.log(appData.isInBasket('c101ab44-ed99-4a54-990d-47aa2bb4e7d9'));
+//         console.log(appData.order.items);
+//         console.log(appData.getTotalPrice());
+
+//         appData.clearBasket();
+
+//         console.log(appData.isInBasket('c101ab44-ed99-4a54-990d-47aa2bb4e7d9'));
+//     })
+//     .catch(err => {
+//         console.error(err);
+//     });
