@@ -117,6 +117,7 @@ events.on<CatalogChangeEvent>('items:changed', () => {
         const card = new CatalogCard(cloneTemplate(cardCatalogTemplate), {
             onClick: () => events.emit('card:select', item)
         });
+        console.log(card);
         return card.render({
             title: item.title,
             image: item.image,

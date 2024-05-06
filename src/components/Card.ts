@@ -54,9 +54,34 @@ export class Card extends Component<ICard> {
             this.setText(this._description, value);
         }
     }
+
+    set category(value: string) {
+        this._category.textContent = value;
+        switch (value) {
+            case 'софт-скил':
+                this._category.classList.add(`card__category_soft`);
+                break;
+            case 'другое':
+                this._category.classList.add(`card__category_other`);
+                break;
+            case 'кнопка':
+                this._category.classList.add(`card__category_button`);
+                break;
+            case 'дополнительное':
+                this._category.classList.add(`card__category_additional`);
+                break;
+            case 'хард-скил':
+                this._category.classList.add(`card__category_hard`);
+                break;
+          }
+    }
+
+    set price(value: number | null) {
+        this._price.textContent = value ? `${value} синапсов` : 'Бесценно';
+    }
 }
 
-export class CardPreview extends Card {
+export class PreviewCard extends Card {
     protected _button: HTMLButtonElement;
 
     constructor(container: HTMLElement, actions?: ICardActions) {
