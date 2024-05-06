@@ -17,10 +17,10 @@ export class Card extends Component<ICard> {
         super(container);
 
         this._title = ensureElement<HTMLElement>(`.${blockName}__title`, container);
-        this._image = ensureElement<HTMLImageElement>(`.${blockName}__image`, container);
+        this._price = ensureElement<HTMLElement>(`.${blockName}__price`, container);
+        this._image = container.querySelector(`.${blockName}__image`);
         this._description = container.querySelector(`.${blockName}__text`);
         this._category = container.querySelector(`.${blockName}__category`);
-        this._price = container.querySelector(`.${blockName}__price`);
     }
 
     set id(value: string) {
@@ -43,7 +43,7 @@ export class Card extends Component<ICard> {
         this.setImage(this._image, value, this.title)
     }
 
-    set description(value: string | string[]) {
+    set description(value: string) {
         if (Array.isArray(value)) {
             this._description.replaceWith(...value.map(str => {
                 const descTemplate = this._description.cloneNode() as HTMLElement;
@@ -81,20 +81,19 @@ export class Card extends Component<ICard> {
     }
 }
 
+
 export class PreviewCard extends Card {
     protected _button: HTMLButtonElement;
 
     constructor(container: HTMLElement, actions?: ICardActions) {
-        super('card', container, actions);
+        super('card', container);
         this._button = ensureElement<HTMLButtonElement>(`.card__button`, container);
 
-        if (actions?.onClick) {
-            if (this._button) {
-                this._button.addEventListener('click', actions.onClick);
-            } else {
-                container.addEventListener('click', actions.onClick);
-            }
-        }
+        if (actions?.onClick) this._button.addEventListener('click', actions.onClick);
+    }
+
+    get button(): HTMLButtonElement {
+        return this._button;
     }
 
     setButtonText(value: string) {
@@ -108,6 +107,19 @@ export class CatalogCard extends Card {
     constructor(container: HTMLElement, actions?: ICardActions) {
         super('card', container, actions);
         this._button = ensureElement<HTMLElement>(container, container);
+
+        if (actions?.onClick) this._button.addEventListener('click', actions.onClick);
+    }
+}
+
+export class BasketCard extends Card {
+    protected _index: HTMLElement;
+    protected _button: HTMLButtonElement;
+
+    constructor(container: HTMLElement, actions?: ICardActions) {
+        super('card', container, actions);
+        this._index = ensureElement<HTMLElement>(`.basket__item-index`, container);
+        this._button = container.querySelector(`.basket__item-delete`);
 
         if (actions?.onClick) this._button.addEventListener('click', actions.onClick);
     }
