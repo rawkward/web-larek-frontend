@@ -45,7 +45,7 @@ export class Form<T> extends Component<IFormState> {
         this.setText(this._errors, value);
     }
 
-    reset() {
+    reset(): void {
         this.container.reset();
         this.valid = false;
     }

@@ -51,8 +51,6 @@ function updateBasketButton(): void {
      else basket.setDisabled(basket.button, false);
 }
 
-const forms = [orderPayment, orderContacts];
-
 // отладка
 
 // Presenter
@@ -266,10 +264,10 @@ events.on('modal:open', () => {
     page.locked = true;
 });
 
-// ... и разблокируем
+// ... и разблокируем + очищаем формы
 events.on('modal:close', () => {
     page.locked = false;
-    forms.forEach(form => form.reset());
+    appData.clearOrder();
 });
 
 api.getProductList()
@@ -277,24 +275,3 @@ api.getProductList()
     .catch(err => {
         console.error(err);
     });
-
-// api.getProductList()
-//     .then(data => {
-//         console.log(data);
-//         appData.setCatalog(data);
-//         console.log(appData.getCards());
-//         console.log(appData.isInBasket('c101ab44-ed99-4a54-990d-47aa2bb4e7d9'));
-//         appData.addToBasket('c101ab44-ed99-4a54-990d-47aa2bb4e7d9');
-//         appData.addToBasket('412bcf81-7e75-4e70-bdb9-d3c73c9803b7');
-//         appData.addToBasket('b06cde61-912f-4663-9751-09956c0eed67');
-//         console.log(appData.isInBasket('c101ab44-ed99-4a54-990d-47aa2bb4e7d9'));
-//         console.log(appData.order.items);
-//         console.log(appData.gettotal());
-
-//         appData.clearBasket();
-
-//         console.log(appData.isInBasket('c101ab44-ed99-4a54-990d-47aa2bb4e7d9'));
-//     })
-//     .catch(err => {
-//         console.error(err);
-//     });

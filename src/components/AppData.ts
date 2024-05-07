@@ -30,6 +30,7 @@ export class AppState extends Model<IAppState> {
     preview: string | null;
     formErrors: FormErrors = {};
 
+
     isInBasket(id: string): boolean {
         return this.order.items.some(item => item === id);
     }
@@ -56,6 +57,13 @@ export class AppState extends Model<IAppState> {
         this.order.total = 0;
         this.emitChanges('basket:changed', { items: this.order.items });
     }
+
+    clearOrder() {
+		this.order.payment = null;
+        this.order.address = '';
+        this.order.email = '';
+        this.order.phone = '';
+	}
 
     getTotal() {
         return this.order.items.reduce((a, c) => {
