@@ -43,4 +43,8 @@ export class Basket extends Component<IBasketView> {
         const amountStr = String(formatNumber(total) + ' синапсов');
         this.setText(this._total, amountStr);
     }
+
+    get button() {
+        return this._button;
+    }
 }

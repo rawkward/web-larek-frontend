@@ -13,21 +13,6 @@ export class CardData extends Model<ICard> {
     title: string;
     category: string;
     price: number | null;
-
-    // isInBasket(id: string): boolean {
-    //     return this.order.items.some(item => item === id);
-    // }
-
-    // addToBasket(): void {
-    //     if (!this.isInBasket(id)) {
-    //         this.order.items.push(id);
-    //         this.order.total = this.gettotal();
-    //         this.emitChanges('basket:changed', { items: this.order.items });
-    //     } else {
-    //         this.emitChanges('card:changed');
-    //     }
-    // }
-
 }
 
 export class AppState extends Model<IAppState> {
@@ -62,11 +47,13 @@ export class AppState extends Model<IAppState> {
 
     removeFromBasket(id: string): void {
         this.order.items = this.order.items.filter(item => item !== id);
+        this.order.total = this.getTotal();
         this.emitChanges('basket:changed', { items: this.order.items });
     }
 
     clearBasket() {
         this.order.items = [];
+        this.order.total = 0;
         this.emitChanges('basket:changed', { items: this.order.items });
     }
 
@@ -81,10 +68,6 @@ export class AppState extends Model<IAppState> {
     getCards(): ICard[] {
         return this.catalog;
     }
-
-    // getOrderCards(): ICard[] {
-    //     return this.order.items.map(item => this.getCard(item));
-    // }
 
     get basketCards(): ICard[] {
         return this.order.items.map(item => this.getCard(item));
@@ -104,27 +87,21 @@ export class AppState extends Model<IAppState> {
         this.emitChanges('preview:changed', item);
     }
 
-    setPaymentField(field: keyof Pick<IOrderPayment, 'payment'>, value: string) {
-        this.order[field] = value;
+    // Поля формы с оплатой и адресом
+    setPaymentField(value: 'card' | 'cash') {
+        this.order.payment = value;
+        this.emitChanges('payment:changed', { payment: value });
 
         if (this.validatePayment()) {
-            this.events.emit('order:payment:ready', this.order);
+            this.events.emit('payment:ready', this.order);
         }
     }
 
-    setAddressField(field: keyof Pick<IOrderPayment, 'address'>, value: string) {
+    setAddressField(field: keyof IOrderPayment, value: string) {
         this.order[field] = value;
 
         if (this.validatePayment()) {
-            this.events.emit('order:address:ready', this.order);
-        }
-    }
-
-    setContactsField(field: keyof IOrderContacts, value: string) {
-        this.order[field] = value;
-
-        if (this.validateContacts()) {
-            this.events.emit('order:ready', this.order);
+            this.events.emit('payment:ready', this.order);
         }
     }
 
@@ -137,10 +114,21 @@ export class AppState extends Model<IAppState> {
             errors.address = 'Необходимо указать адрес доставки';
         }
         this.formErrors = errors;
-        this.events.emit('paymentErrors:change', this.formErrors);
+        this.events.emit('paymentErrors:changed', this.formErrors);
         return Object.keys(errors).length === 0;
     }
 
+
+    // Поля формы с почтой и телефоном
+    setContactsField(field: keyof IOrderContacts, value: string) {
+        this.order[field] = value;
+
+        if (this.validateContacts()) {
+            this.events.emit('contacts:ready', this.order);
+        }
+    }
+
+    
     validateContacts() {
         const errors: typeof this.formErrors = {};
         if (!this.order.email) {
@@ -150,20 +138,7 @@ export class AppState extends Model<IAppState> {
             errors.phone = 'Необходимо указать телефон';
         }
         this.formErrors = errors;
-        this.events.emit('contactsErrors:change', this.formErrors);
+        this.events.emit('contactsErrors:changed', this.formErrors);
         return Object.keys(errors).length === 0;
     }
-
-    // setPaymentField(data: IOrderPayment) {
-    //     this.order.payment = data.payment;
-    //     this.order.address = data.address;
-
-    //     this.events.emit('payment:ready', this.order);
-    // }
-
-    // setContactsField(data: IOrderContacts) {
-    //     this.order.email = data.phone;
-    //     this.order.phone = data.phone;
-
-    //     this.events.emit('order:ready', this.order);
 }

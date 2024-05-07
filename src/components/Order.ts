@@ -1,4 +1,4 @@
-import { IOrderPayment } from "../types";
+import { IOrderContacts, IOrderPayment } from "../types";
 import { ensureElement } from "../utils/utils";
 import { Form } from "./Form";
 import { IEvents } from "./base/events";
@@ -13,25 +13,38 @@ export class OrderPaymentForm extends Form<IOrderPayment> {
         this._buttonCash = ensureElement<HTMLButtonElement>(`button[name="cash"]`, container);
 
         this._buttonCard.addEventListener('click', () => {
-            events.emit('order:payment:change', { payment: 'card' });
+            events.emit('order:payment:changed', { payment: 'card' });
         });
 
         this._buttonCash.addEventListener('click', () => {
-            events.emit('order:payment:change', { payment: 'cash' });
+            events.emit('order:payment:changed', { payment: 'cash' });
         });
-    }
-
-    set payment(item: string | null) {
-        if (item) {
-            if (item === 'card') this.setDisabled(this._buttonCard, true);
-            if (item === 'cash') this.setDisabled(this._buttonCash, true);
-        } else {
-            this.setDisabled(this._buttonCard, false);
-            this.setDisabled(this._buttonCash, false);
-        }
     }
 
     set address(value: string) {
         (this.container.elements.namedItem('address') as HTMLInputElement).value = value;
+    }
+
+    get buttonCard(): HTMLButtonElement {
+        return this._buttonCard;
+    }
+
+    get buttonCash(): HTMLButtonElement {
+        return this._buttonCash;
+    }
+}
+
+export class OrderContactsForm extends Form<IOrderContacts> {
+
+    constructor(container: HTMLFormElement, events: IEvents) {
+        super(container, events);
+    }
+
+    set email(value: string) {
+        (this.container.elements.namedItem('email') as HTMLInputElement).value = value;
+    }
+    
+    set phone(value: string) {
+        (this.container.elements.namedItem('phone') as HTMLInputElement).value = value;
     }
 }
