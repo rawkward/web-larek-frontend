@@ -11,12 +11,12 @@ export interface ICard {
 
 export interface IBasket {
     count: number;
-    totalPrice: number;
+    total: number;
     items: string[];
 }
 
-export interface IOrderPaymentAndAddress {
-    payment: TPaymentMethod;
+export interface IOrderPayment {
+    payment: string;
     address: string;
 }
 
@@ -25,7 +25,9 @@ export interface IOrderContacts {
     phone: string;
 }
 
-export type IOrder = IOrderPaymentAndAddress & IOrderContacts & Pick<IBasket, 'items' | 'totalPrice'>;
+export type FormErrors = Partial<Record<keyof IOrder, string>>;
+
+export type IOrder = IOrderPayment & IOrderContacts & Pick<IBasket, 'items' | 'total'>;
 
 export interface IOrderResult {
     id: string;
@@ -42,7 +44,7 @@ export interface IAppState extends ICardsData {
     loading: boolean;
 }
 
-export type TPaymentMethod = 'card' | 'cash' | null;
+//export type TPaymentMethod = 'card' | 'cash' | null;
 
 export type TCardBaseInfo = Pick<ICard, 'id' | 'image' | 'title' | 'category' | 'price'>;
 

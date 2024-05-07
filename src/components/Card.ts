@@ -119,8 +119,12 @@ export class BasketCard extends Card {
     constructor(container: HTMLElement, actions?: ICardActions) {
         super('card', container, actions);
         this._index = ensureElement<HTMLElement>(`.basket__item-index`, container);
-        this._button = container.querySelector(`.basket__item-delete`);
+        this._button = ensureElement<HTMLButtonElement>(`.basket__item-delete`, container);
 
         if (actions?.onClick) this._button.addEventListener('click', actions.onClick);
+    }
+
+    set index(value: number) {
+        this._index.textContent = String(value);
     }
 }

@@ -1,4 +1,4 @@
-import { IAppState, ICard, ICardsData, IOrder, IOrderContacts, IOrderPaymentAndAddress } from "../types";
+import { FormErrors, IAppState, ICard, ICardsData, IOrder, IOrderContacts, IOrderPayment } from "../types";
 import { Model } from "./base/Model";
 import { IEvents } from "./base/events";
 
@@ -21,7 +21,7 @@ export class CardData extends Model<ICard> {
     // addToBasket(): void {
     //     if (!this.isInBasket(id)) {
     //         this.order.items.push(id);
-    //         this.order.totalPrice = this.getTotalPrice();
+    //         this.order.total = this.gettotal();
     //         this.emitChanges('basket:changed', { items: this.order.items });
     //     } else {
     //         this.emitChanges('card:changed');
@@ -40,9 +40,10 @@ export class AppState extends Model<IAppState> {
         email: '',
         phone: '',
         items: [],
-        totalPrice: 0
+        total: 0
     };
     preview: string | null;
+    formErrors: FormErrors = {};
 
     isInBasket(id: string): boolean {
         return this.order.items.some(item => item === id);
@@ -52,7 +53,7 @@ export class AppState extends Model<IAppState> {
     addToBasket(id: string): void {
         if (!this.isInBasket(id)) {
             this.order.items.push(id);
-            this.order.totalPrice = this.getTotalPrice();
+            this.order.total = this.getTotal();
             this.emitChanges('basket:changed', { items: this.order.items });
         } else {
             this.emitChanges('preview:changed', { card: this.getCard(id) });
@@ -60,7 +61,7 @@ export class AppState extends Model<IAppState> {
     }
 
     removeFromBasket(id: string): void {
-        this.order.items.filter(item => item !== id);
+        this.order.items = this.order.items.filter(item => item !== id);
         this.emitChanges('basket:changed', { items: this.order.items });
     }
 
@@ -69,7 +70,7 @@ export class AppState extends Model<IAppState> {
         this.emitChanges('basket:changed', { items: this.order.items });
     }
 
-    getTotalPrice() {
+    getTotal() {
         return this.order.items.reduce((a, c) => {
             const item = this.catalog.find(it => it.id === c);
             const itemPrice = item && item.price !== null ? item.price : 0;
@@ -103,17 +104,66 @@ export class AppState extends Model<IAppState> {
         this.emitChanges('preview:changed', item);
     }
 
-    setPaymentAndAddressField(data: IOrderPaymentAndAddress) {
-        this.order.payment = data.payment;
-        this.order.address = data.address;
+    setPaymentField(field: keyof Pick<IOrderPayment, 'payment'>, value: string) {
+        this.order[field] = value;
 
-        this.events.emit('payment:ready', this.order);
+        if (this.validatePayment()) {
+            this.events.emit('order:payment:ready', this.order);
+        }
     }
 
-    setContactsField(data: IOrderContacts) {
-        this.order.email = data.phone;
-        this.order.phone = data.phone;
+    setAddressField(field: keyof Pick<IOrderPayment, 'address'>, value: string) {
+        this.order[field] = value;
 
-        this.events.emit('order:ready', this.order);
+        if (this.validatePayment()) {
+            this.events.emit('order:address:ready', this.order);
+        }
     }
+
+    setContactsField(field: keyof IOrderContacts, value: string) {
+        this.order[field] = value;
+
+        if (this.validateContacts()) {
+            this.events.emit('order:ready', this.order);
+        }
+    }
+
+    validatePayment() {
+        const errors: typeof this.formErrors = {};
+        if (!this.order.payment) {
+            errors.payment = 'Необходимо выбрать способ оплаты';
+        }
+        if (!this.order.address) {
+            errors.address = 'Необходимо указать адрес доставки';
+        }
+        this.formErrors = errors;
+        this.events.emit('paymentErrors:change', this.formErrors);
+        return Object.keys(errors).length === 0;
+    }
+
+    validateContacts() {
+        const errors: typeof this.formErrors = {};
+        if (!this.order.email) {
+            errors.email = 'Необходимо указать email';
+        }
+        if (!this.order.phone) {
+            errors.phone = 'Необходимо указать телефон';
+        }
+        this.formErrors = errors;
+        this.events.emit('contactsErrors:change', this.formErrors);
+        return Object.keys(errors).length === 0;
+    }
+
+    // setPaymentField(data: IOrderPayment) {
+    //     this.order.payment = data.payment;
+    //     this.order.address = data.address;
+
+    //     this.events.emit('payment:ready', this.order);
+    // }
+
+    // setContactsField(data: IOrderContacts) {
+    //     this.order.email = data.phone;
+    //     this.order.phone = data.phone;
+
+    //     this.events.emit('order:ready', this.order);
 }
