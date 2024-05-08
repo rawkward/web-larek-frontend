@@ -189,13 +189,16 @@ events.on('order:payment:changed', (data: { payment: 'card' | 'cash' }) => {
     appData.setPaymentField(data.payment);
 });
 
-events.on('payment:changed', (data: { payment: 'card' | 'cash' }) => {
+events.on('payment:changed', (data: { payment: 'card' | 'cash' | null }) => {
     if (data.payment === 'card') {
         orderPayment.buttonCard.classList.add('button_alt-active');
         orderPayment.buttonCash.classList.remove('button_alt-active');
     } else if (data.payment === 'cash') {
         orderPayment.buttonCard.classList.remove('button_alt-active');
         orderPayment.buttonCash.classList.add('button_alt-active');
+    } else {
+        orderPayment.buttonCard.classList.remove('button_alt-active');
+        orderPayment.buttonCash.classList.remove('button_alt-active');
     }
 });
 

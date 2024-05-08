@@ -63,6 +63,7 @@ export class AppState extends Model<IAppState> {
         this.order.address = '';
         this.order.email = '';
         this.order.phone = '';
+        this.emitChanges('payment:changed', { payment: this.order.payment });
 	}
 
     getTotal() {
