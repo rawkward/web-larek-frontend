@@ -9,6 +9,11 @@ export interface ICard {
     price: number | null;
 }
 
+export interface ICardsData {
+    cards: ICard[];
+    preview: string | null;
+}
+
 export interface IBasket {
     count: number;
     total: number;
@@ -29,15 +34,9 @@ export interface IOrderResult {
     id: string;
 }
 
-export interface ICardsData {
-    cards: ICard[];
-    preview: string | null;
-}
-
 export interface IAppState extends ICardsData {
     basket: string[];
     order: IOrder | null;
-    loading: boolean;
 }
 
 export type FormErrors = Partial<Record<keyof IOrder, string>>;

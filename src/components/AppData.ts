@@ -16,7 +16,6 @@ export class CardData extends Model<ICard> {
 
 export class AppState extends Model<IAppState> {
     catalog: ICard[];
-    loading: boolean;
     order: IOrder = {
         payment: null,
         address: '',
@@ -128,7 +127,6 @@ export class AppState extends Model<IAppState> {
 
 
     // ----------------- Поля формы с почтой и телефоном -----------------
-    
     setContactsField(field: keyof IOrderContacts, value: string) {
         this.order[field] = value;
 

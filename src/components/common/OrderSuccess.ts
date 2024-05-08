@@ -10,13 +10,13 @@ interface IOrderSuccessActions {
 }
 
 export class OrderSuccess extends Component<IOrderSuccess> {
-    protected _close: HTMLElement;
+    protected _close: HTMLButtonElement;
     protected _total: HTMLElement;
 
     constructor(container: HTMLElement, actions: IOrderSuccessActions) {
         super(container);
 
-        this._close = ensureElement<HTMLElement>('.order-success__close', this.container);
+        this._close = ensureElement<HTMLButtonElement>('.order-success__close', this.container);
         this._total = ensureElement<HTMLElement>('.order-success__description', this.container);
 
         if (actions?.onClick) {
