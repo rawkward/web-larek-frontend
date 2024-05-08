@@ -1,6 +1,5 @@
 import { FormErrors, IAppState, ICard, ICardsData, IOrder, IOrderContacts, IOrderPayment } from "../types";
 import { Model } from "./base/Model";
-import { IEvents } from "./base/events";
 
 export type CatalogChangeEvent = {
     catalog: ICard[];
@@ -16,7 +15,6 @@ export class CardData extends Model<ICard> {
 }
 
 export class AppState extends Model<IAppState> {
-    //basket: string[];
     catalog: ICard[];
     loading: boolean;
     order: IOrder = {
@@ -35,7 +33,6 @@ export class AppState extends Model<IAppState> {
         return this.order.items.some(item => item === id);
     }
 
-    //пока метод здесь, но может нужно его перенести в Card? View
     addToBasket(id: string): void {
         if (!this.isInBasket(id)) {
             this.order.items.push(id);
@@ -96,7 +93,9 @@ export class AppState extends Model<IAppState> {
         this.emitChanges('preview:changed', item);
     }
 
-    // Поля формы с оплатой и адресом
+
+    // ----------------- Поля формы с оплатой и адресом -----------------
+
     setPaymentField(value: 'card' | 'cash') {
         this.order.payment = value;
         this.emitChanges('payment:changed', { payment: value });
@@ -128,7 +127,8 @@ export class AppState extends Model<IAppState> {
     }
 
 
-    // Поля формы с почтой и телефоном
+    // ----------------- Поля формы с почтой и телефоном -----------------
+    
     setContactsField(field: keyof IOrderContacts, value: string) {
         this.order[field] = value;
 
@@ -137,7 +137,6 @@ export class AppState extends Model<IAppState> {
         }
     }
 
-    
     validateContacts() {
         const errors: typeof this.formErrors = {};
         if (!this.order.email) {

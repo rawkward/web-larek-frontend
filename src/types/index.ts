@@ -25,10 +25,6 @@ export interface IOrderContacts {
     phone: string;
 }
 
-export type FormErrors = Partial<Record<keyof IOrder, string>>;
-
-export type IOrder = IOrderPayment & IOrderContacts & Pick<IBasket, 'items' | 'total'>;
-
 export interface IOrderResult {
     id: string;
 }
@@ -44,8 +40,6 @@ export interface IAppState extends ICardsData {
     loading: boolean;
 }
 
-//export type TPaymentMethod = 'card' | 'cash' | null;
+export type FormErrors = Partial<Record<keyof IOrder, string>>;
 
-export type TCardBaseInfo = Pick<ICard, 'id' | 'image' | 'title' | 'category' | 'price'>;
-
-export type TBasketInfo = Pick<IBasket, 'count'>;
+export type IOrder = IOrderPayment & IOrderContacts & Pick<IBasket, 'items' | 'total'>;

@@ -6,14 +6,14 @@ import { API_URL, CDN_URL } from './utils/constants';
 import { Page } from './components/Page';
 import { BasketCard, Card, CatalogCard, PreviewCard } from './components/Card';
 import { cloneTemplate, createElement, ensureElement } from './utils/utils';
-import { Modal } from './components/Modal';
+import { Modal } from './components/common/Modal';
 import { ICard, IOrderContacts, IOrderPayment } from './types';
-import { Basket } from './components/Basket';
+import { Basket } from './components/common/Basket';
 import { OrderContactsForm, OrderPaymentForm } from './components/Order';
-import { OrderSuccess } from './components/OrderSuccess';
+import { OrderSuccess } from './components/common/OrderSuccess';
 
 
-// Шаблоны
+// ----------------- Шаблоны -----------------
 const cardCatalogTemplate = ensureElement<HTMLTemplateElement>('#card-catalog');
 const cardPreviewTemplate = ensureElement<HTMLTemplateElement>('#card-preview');
 
@@ -26,7 +26,7 @@ const contactsTemplate = ensureElement<HTMLTemplateElement>('#contacts');
 const orderSuccessTemplate = ensureElement<HTMLTemplateElement>('#success');
 
 
-// Экземпляры
+// ----------------- Экземпляры -----------------
 const events = new EventEmitter();
 
 const api = new LarekAPI(CDN_URL, API_URL);
@@ -42,20 +42,16 @@ const basket = new Basket(cloneTemplate(basketTemplate), events);
 const orderPayment = new OrderPaymentForm(cloneTemplate(orderTemplate), events);
 const orderContacts = new OrderContactsForm(cloneTemplate(contactsTemplate), events);
 
+
+// ----------------- Отладка -----------------
 events.onAll(({ eventName, data }) => {
     console.log(eventName, data);
 })
 
-function updateBasketButton(): void {
-    if (!appData.order.items.length) basket.setDisabled(basket.button, true);
-     else basket.setDisabled(basket.button, false);
-}
-
-// отладка
 
 // Presenter
 
-// отображение каталога
+// ----------------- Отображение каталога -----------------
 events.on<CatalogChangeEvent>('items:changed', () => {
     page.catalog = appData.catalog.map(item => {
         const card = new CatalogCard(cloneTemplate(cardCatalogTemplate), {
@@ -73,7 +69,7 @@ events.on<CatalogChangeEvent>('items:changed', () => {
     page.counter = appData.order.items.length;
 });
 
-// выбрана карточка товара
+// ----------------- Выбрана карточка товара -----------------
 events.on('card:select', (item: ICard) => {
     appData.setPreview(item);
 });
@@ -132,7 +128,13 @@ events.on('preview:changed', (item: ICard) => {
 });
 
 
-// изменения в корзине
+// ----------------- Корзина -----------------
+
+function updateBasketButton(): void {
+    if (!appData.order.items.length) basket.setDisabled(basket.button, true);
+     else basket.setDisabled(basket.button, false);
+}
+
 events.on('basket:changed', () => {
     page.counter = appData.order.items.length;
     basket.items = appData.basketCards.map((item, index) => {
@@ -154,7 +156,6 @@ events.on('basket:changed', () => {
 })
 
 
-// открытие корзины
 events.on('basket:open', () => {
     updateBasketButton();
     modal.render({
@@ -164,7 +165,7 @@ events.on('basket:open', () => {
 
 
 
-// ФОРМА ВЫБОРА СПОСОБА ОПЛАТЫ И АДРЕСА
+// ----------------- Форма "оплата и адрес" -----------------
 // переход из корзины в форму оформления заказа
 events.on('order:open', () => {
     modal.render({
@@ -176,6 +177,7 @@ events.on('order:open', () => {
         })
     });
 });
+
 
 // Изменилось состояние валидации формы оплаты и адреса
 events.on('paymentErrors:changed', (errors: Partial<IOrderPayment>) => {
@@ -208,9 +210,9 @@ events.on(/^order\..*:changed/, (data: { field: keyof IOrderPayment, value: stri
 
 
 
-// ФОРМА КОНТАКТОВ
+// ----------------- Форма "Конакты" -----------------
+
 // переход из формы с оплатой и адресом в форму с контактами
-// на сабмит прошлой формы мы туда переходим - ниже переделать код под следующую форму
 events.on('order:submit', () => {
     modal.render({
         content: orderContacts.render({
@@ -237,8 +239,8 @@ events.on(/^contacts\..*:changed/, (data: { field: keyof IOrderContacts, value: 
 });
 
 
+// ----------------- Отправка заказа -----------------
 
-// Отправлена форма заказа
 events.on('contacts:submit', () => {
     api.orderProducts(appData.order)
         .then(() => {
@@ -262,7 +264,7 @@ events.on('contacts:submit', () => {
 });
 
 
-// Блокируем прокрутку страницы если открыта модалка
+// Блокируем прокрутку страницы, если открыта модалка
 events.on('modal:open', () => {
     page.locked = true;
 });
@@ -273,6 +275,7 @@ events.on('modal:close', () => {
     appData.clearOrder();
 });
 
+// Получаем данные с сервера
 api.getProductList()
     .then(appData.setCatalog.bind(appData))
     .catch(err => {

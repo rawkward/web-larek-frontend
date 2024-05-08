@@ -1,6 +1,6 @@
 import { IOrderContacts, IOrderPayment } from "../types";
 import { ensureElement } from "../utils/utils";
-import { Form } from "./Form";
+import { Form } from "./common/Form";
 import { IEvents } from "./base/events";
 
 export class OrderPaymentForm extends Form<IOrderPayment> {
