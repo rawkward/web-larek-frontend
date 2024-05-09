@@ -8,9 +8,9 @@ import { BasketCard, Card, CatalogCard, PreviewCard } from './components/Card';
 import { cloneTemplate, createElement, ensureElement } from './utils/utils';
 import { Modal } from './components/common/Modal';
 import { ICard, IOrderContacts, IOrderPayment } from './types';
-import { Basket } from './components/common/Basket';
+import { Basket } from './components/Basket';
 import { OrderContactsForm, OrderPaymentForm } from './components/Order';
-import { OrderSuccess } from './components/common/OrderSuccess';
+import { OrderSuccess } from './components/OrderSuccess';
 
 
 // ----------------- Шаблоны -----------------
@@ -41,6 +41,13 @@ const basket = new Basket(cloneTemplate(basketTemplate), events);
 
 const orderPayment = new OrderPaymentForm(cloneTemplate(orderTemplate), events);
 const orderContacts = new OrderContactsForm(cloneTemplate(contactsTemplate), events);
+
+const orderSuccess = new OrderSuccess(cloneTemplate(orderSuccessTemplate), {
+    onClick: () => { 
+        modal.close();
+        appData.clearOrder();
+    }
+});
 
 
 // ----------------- Отладка -----------------
@@ -193,14 +200,14 @@ events.on('order:payment:changed', (data: { payment: 'card' | 'cash' }) => {
 
 events.on('payment:changed', (data: { payment: 'card' | 'cash' | null }) => {
     if (data.payment === 'card') {
-        orderPayment.buttonCard.classList.add('button_alt-active');
-        orderPayment.buttonCash.classList.remove('button_alt-active');
+        orderPayment.toggleCard();
+        orderPayment.toggleCash(false);
     } else if (data.payment === 'cash') {
-        orderPayment.buttonCard.classList.remove('button_alt-active');
-        orderPayment.buttonCash.classList.add('button_alt-active');
+        orderPayment.toggleCash();
+        orderPayment.toggleCard(false);
     } else {
-        orderPayment.buttonCard.classList.remove('button_alt-active');
-        orderPayment.buttonCash.classList.remove('button_alt-active');
+        orderPayment.toggleCard(false);
+        orderPayment.toggleCash(false);
     }
 });
 
@@ -214,6 +221,7 @@ events.on(/^order\..*:changed/, (data: { field: keyof IOrderPayment, value: stri
 
 // переход из формы с оплатой и адресом в форму с контактами
 events.on('order:submit', () => {
+
     modal.render({
         content: orderContacts.render({
             email: '',
@@ -244,10 +252,6 @@ events.on(/^contacts\..*:changed/, (data: { field: keyof IOrderContacts, value: 
 events.on('contacts:submit', () => {
     api.orderProducts(appData.order)
         .then(() => {
-            const orderSuccess = new OrderSuccess(cloneTemplate(orderSuccessTemplate), {
-                onClick: () => modal.close()
-            });
-
             modal.render({
                 content: orderSuccess.render({
                     total: appData.order.total,
@@ -256,6 +260,8 @@ events.on('contacts:submit', () => {
         })
         .then(() => {
             appData.clearBasket();
+            appData.clearOrder();
+            appData.successModalActive = true;
             events.emit('basket:changed');
         })
         .catch(err => {
@@ -272,7 +278,10 @@ events.on('modal:open', () => {
 // ... и разблокируем + очищаем формы
 events.on('modal:close', () => {
     page.locked = false;
-    appData.clearOrder();
+
+    if (!appData.successModalActive) appData.clearOrder();
+
+    appData.successModalActive = false;
 });
 
 // Получаем данные с сервера

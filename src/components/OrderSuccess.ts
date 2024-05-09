@@ -1,5 +1,5 @@
-import { ensureElement } from "../../utils/utils";
-import { Component } from "../base/Component";
+import { ensureElement } from "../utils/utils";
+import { Component } from "./base/Component";
 
 interface IOrderSuccess {
     total: number;
@@ -25,6 +25,6 @@ export class OrderSuccess extends Component<IOrderSuccess> {
     }
 
     set total(value: number) {
-        this._total.textContent = `Списано ${value} синапсов`;
+        this.setText(this._total, `Списано ${value} синапсов`);
     }
 }

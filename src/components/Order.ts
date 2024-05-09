@@ -32,6 +32,14 @@ export class OrderPaymentForm extends Form<IOrderPayment> {
     get buttonCash(): HTMLButtonElement {
         return this._buttonCash;
     }
+
+    toggleCard(state: boolean = true) {
+        this.toggleClass(this._buttonCard, 'button_alt-active', state);
+    }
+
+    toggleCash(state: boolean = true) {
+        this.toggleClass(this._buttonCash, 'button_alt-active', state);
+    }
 }
 
 export class OrderContactsForm extends Form<IOrderContacts> {

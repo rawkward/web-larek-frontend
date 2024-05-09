@@ -26,6 +26,7 @@ export class AppState extends Model<IAppState> {
     };
     preview: string | null;
     formErrors: FormErrors = {};
+    successModalActive: boolean = false;
 
 
     isInBasket(id: string): boolean {

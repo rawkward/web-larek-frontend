@@ -56,28 +56,28 @@ export class Card extends Component<ICard> {
     }
 
     set category(value: string) {
-        this._category.textContent = value;
+        this.setText(this._category, value);
         switch (value) {
             case 'софт-скил':
-                this._category.classList.add(`card__category_soft`);
+                this.toggleClass(this._category, `card__category_soft`);
                 break;
             case 'другое':
-                this._category.classList.add(`card__category_other`);
+                this.toggleClass(this._category, `card__category_other`);
                 break;
             case 'кнопка':
-                this._category.classList.add(`card__category_button`);
+                this.toggleClass(this._category, `card__category_button`);
                 break;
             case 'дополнительное':
-                this._category.classList.add(`card__category_additional`);
+                this.toggleClass(this._category, `card__category_additional`);
                 break;
             case 'хард-скил':
-                this._category.classList.add(`card__category_hard`);
+                this.toggleClass(this._category, `card__category_hard`);
                 break;
           }
     }
 
     set price(value: number | null) {
-        this._price.textContent = value ? `${value} синапсов` : 'Бесценно';
+        this.setText(this._price, value ? `${value} синапсов` : 'Бесценно');
     }
 }
 
@@ -97,7 +97,7 @@ export class PreviewCard extends Card {
     }
 
     setButtonText(value: string) {
-        this._button.textContent = value;
+        this.setText(this._button, value);
     }
 }
 
@@ -125,6 +125,6 @@ export class BasketCard extends Card {
     }
 
     set index(value: number) {
-        this._index.textContent = String(value);
+        this.setText(this._index, String(value));
     }
 }
