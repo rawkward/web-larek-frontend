@@ -1,7 +1,7 @@
 import { IOrderContacts, IOrderPayment } from "../types";
 import { ensureElement } from "../utils/utils";
 import { Form } from "./common/Form";
-import { IEvents } from "./base/events";
+import { IEvents } from "./base/EventEmitter";
 
 export class OrderPaymentForm extends Form<IOrderPayment> {
     protected _buttonCard: HTMLButtonElement;

@@ -1,4 +1,4 @@
-import { EventEmitter, IEvents } from './components/base/events';
+import { EventEmitter, IEvents } from './components/base/EventEmitter';
 import { AppState, CardData, CatalogChangeEvent } from './components/AppData';
 import './scss/styles.scss';
 import { LarekAPI } from './components/LarekApi';
